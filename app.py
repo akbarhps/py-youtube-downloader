@@ -128,13 +128,6 @@ def on_complete(param1, param2):
 
 
 ###################################################################################################################
-if __name__ == "__main__":
-    main()
 
-
-def main():
-    if len(sys.argv) > 1:
-        print(sys.argv)
-        # TODO: download using command args
-    else:
-        get_youtube_url()
+clear_terminal()
+get_youtube_url()
