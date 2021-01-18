@@ -4,13 +4,13 @@ import sys
 import subprocess
 from pytube import YouTube
 from pytube import Playlist
+from pytube.cli import on_progress
 import moviepy.editor as moviepy
 
 
 FOLDER_AUDIO = 'Audio'
 FOLDER_VIDEO = 'Video'
 
-file_size = 0
 file_type = ''
 
 
@@ -24,6 +24,8 @@ def open_file_explorer(file_path):
 
 
 def convert_mp4_to_mp3(file_path):
+    clear_terminal()
+    print('Converting file...')
     mp4_path = os.path.join(file_path)
     mp3_path = os.path.join(os.path.splitext(file_path)[0]+'.mp3')
     new_file = moviepy.AudioFileClip(mp4_path)
@@ -53,8 +55,6 @@ def get_file_type():
 
 
 def download_video(url):
-    global file_size
-
     try:
         youtube = YouTube(url, on_progress_callback=on_progress,
                           on_complete_callback=on_complete).streams
@@ -72,7 +72,8 @@ def download_video(url):
     else:
         selected_vid = youtube.filter(only_audio=True).first()
 
-    file_size = selected_vid.filesize
+    clear_terminal()
+    print('Downloading {}'.format(selected_vid.title))
 
     try:
         selected_vid.download(file_path)
@@ -110,15 +111,6 @@ def get_video_itag(youtube):
             exit()
 
     return qualities[selected].itag
-
-
-def on_progress(chunk, file_handle, bytes_remaining):
-    global file_size
-    downloaded = file_size - bytes_remaining
-    percentage = (float(downloaded) / float(file_size)) * float(100)
-
-    clear_terminal()
-    print(f"Downloading...\t\t{percentage}% Complete")
 
 
 def on_complete(itag, file_path):
