@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import subprocess
 from pytube import YouTube
 from pytube import Playlist
 import moviepy.editor as moviepy
@@ -17,16 +18,17 @@ def clear_terminal():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
-def convert_mp4_to_mp3():
-    folder_path = generate_folder_path('2')
-    for file in os.listdir(folder_path):
-        if re.search('mp4', file):
-            mp4_path = os.path.join(folder_path, file)
-            mp3_path = os.path.join(
-                folder_path, os.path.splitext(file)[0]+'.mp3')
-            new_file = moviepy.AudioFileClip(mp4_path)
-            new_file.write_audiofile(mp3_path)
-            os.remove(mp4_path)
+def open_file_explorer(file_path):
+    subprocess.Popen(
+        r'explorer /select,"{}"'.format(file_path))
+
+
+def convert_mp4_to_mp3(file_path):
+    mp4_path = os.path.join(file_path)
+    mp3_path = os.path.join(os.path.splitext(file_path)[0]+'.mp3')
+    new_file = moviepy.AudioFileClip(mp4_path)
+    new_file.write_audiofile(mp3_path)
+    os.remove(mp4_path)
 
 
 def get_youtube_url():
@@ -119,12 +121,19 @@ def on_progress(chunk, file_handle, bytes_remaining):
     print(f"Downloading...\t\t{percentage}% Complete")
 
 
-def on_complete(param1, param2):
+def on_complete(itag, file_path):
     global file_type
 
-    print('Download Success')
     if file_type == '2':
-        convert_mp4_to_mp3()
+        convert_mp4_to_mp3(file_path)
+        file_path = os.path.join(os.path.splitext(file_path)[0]+'.mp3')
+
+    clear_terminal()
+    print('Download Success\nFile location: {}'.format(file_path))
+
+    is_open_file = input('Open file explorer? (y/n): ')
+    if is_open_file == 'y' or is_open_file == 'Y':
+        open_file_explorer(file_path)
 
 
 ###################################################################################################################
